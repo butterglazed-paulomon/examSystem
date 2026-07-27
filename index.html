@@ -1,0 +1,333 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Paulomon's Exam Attendance Sheet Generator</title>
+<style>
+  /* ── Base ── */
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: Arial, sans-serif; background: #f0f2f5; color: #222; }
+
+  /* ── Form UI ── */
+  #form-section {
+    max-width: 700px;
+    margin: 2rem auto;
+    background: #fff;
+    border-radius: 10px;
+    padding: 2rem;
+    box-shadow: 0 2px 12px rgba(0,0,0,.12);
+  }
+  #form-section h1 { font-size: 1.4rem; margin-bottom: 1.5rem; color: #1a1a2e; }
+  .field-group { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1rem; }
+  .field-group.full { grid-template-columns: 1fr; }
+  label { display: block; font-size: .8rem; font-weight: 700; color: #555; margin-bottom: .3rem; text-transform: uppercase; letter-spacing: .04em; }
+  input, textarea, select {
+    width: 100%; padding: .55rem .75rem; border: 1.5px solid #ccc;
+    border-radius: 6px; font-size: .95rem; transition: border-color .2s;
+  }
+  input:focus, textarea:focus { outline: none; border-color: #4a6cf7; }
+  textarea { resize: vertical; min-height: 120px; font-family: monospace; font-size: .85rem; }
+  .hint { font-size: .75rem; color: #888; margin-top: .25rem; }
+  .btn-row { display: flex; gap: .75rem; margin-top: 1.5rem; }
+  button {
+    padding: .65rem 1.5rem; border: none; border-radius: 6px;
+    font-size: .95rem; font-weight: 700; cursor: pointer; transition: opacity .2s;
+  }
+  button:hover { opacity: .85; }
+  #btn-generate { background: #4a6cf7; color: #fff; }
+  #btn-clear    { background: #e2e8f0; color: #444; }
+
+  /* ── Preview wrapper (screen only) ── */
+  #preview-section {
+    display: none;
+    max-width: 860px;
+    margin: 2rem auto;
+    background: #fff;
+    border-radius: 10px;
+    padding: 2rem;
+    box-shadow: 0 2px 12px rgba(0,0,0,.12);
+  }
+  #preview-section.visible { display: block; }
+  .preview-actions { display: flex; gap: .75rem; margin-bottom: 1.5rem; }
+  #btn-print  { background: #16a34a; color: #fff; }
+  #btn-back   { background: #e2e8f0; color: #444; }
+
+  /* ── Sheet (printed + previewed) ── */
+  #sheet {
+    width: 100%;
+    font-family: Arial, sans-serif;
+    font-size: 11pt;
+    color: #000;
+  }
+  .sheet-header { text-align: center; margin-bottom: 1rem; }
+  .sheet-header .org { font-size: 9pt; color: #444; margin-bottom: .2rem; }
+  .sheet-header h2 { font-size: 16pt; font-weight: 900; letter-spacing: .05em; text-transform: uppercase; }
+  .sheet-header .subtitle { font-size: 9pt; color: #555; margin-top: .15rem; }
+
+  .info-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: .4rem .75rem;
+    margin: 1rem 0;
+    border: 1.5px solid #222;
+    border-radius: 4px;
+    padding: .75rem 1rem;
+  }
+  .info-row { display: flex; gap: .3rem; font-size: 10.5pt; }
+  .info-label { font-weight: 700; white-space: nowrap; }
+  .info-value { border-bottom: 1px solid #888; flex: 1; min-width: 0; word-break: break-word; }
+
+  .section-title {
+    font-size: 10pt; font-weight: 700; text-transform: uppercase;
+    letter-spacing: .06em; margin: 1rem 0 .4rem;
+    padding-bottom: .2rem; border-bottom: 2px solid #222;
+  }
+
+  table {
+    width: 100%; border-collapse: collapse;
+    font-size: 10pt;
+  }
+  thead tr { background: #222; color: #fff; }
+  th { padding: .45rem .6rem; text-align: left; font-weight: 700; }
+  td { padding: .38rem .6rem; border-bottom: 1px solid #ccc; vertical-align: middle; }
+  tr:nth-child(even) td { background: #f8f8f8; }
+  .sig-cell { min-width: 120px; }
+
+  .sheet-footer {
+    margin-top: 2rem;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+  }
+  .sig-block { border-top: 1.5px solid #222; padding-top: .3rem; font-size: 9pt; text-align: center; }
+  .sig-block .sig-name { font-weight: 700; font-size: 10pt; margin-bottom: .1rem; }
+  .sig-block .sig-role { color: #555; }
+
+  .watermark-empty {
+    text-align: center; padding: 2rem; color: #aaa;
+    font-style: italic; border: 1.5px dashed #ccc; border-radius: 6px;
+  }
+
+  /* ── Print ── */
+  @media print {
+    body { background: #fff; }
+    #form-section, #preview-section .preview-actions { display: none !important; }
+    #preview-section {
+      display: block !important;
+      margin: 0; padding: 0;
+      box-shadow: none; border-radius: 0;
+    }
+    #sheet { font-size: 10.5pt; }
+    thead tr { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+    tr:nth-child(even) td { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+    @page { margin: 1.8cm 1.5cm; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ════════ FORM ════════ -->
+<section id="form-section">
+  <h1>Paulomon's Exam Attendance Sheet Generator</h1>
+
+  <div class="field-group">
+    <div>
+      <label for="subject">Subject / Course</label>
+      <input id="subject" type="text" placeholder="e.g. MIC101">
+    </div>
+    <div>
+      <label for="exam-type">Exam Type</label>
+      <select id="exam-type">
+        <option value="">— Select —</option>
+        <option value="Preliminary Examination">Preliminary (Prelim)</option>
+        <option value="Midterm Examination">Midterm</option>
+        <option value="Pre-Final Examination">Pre-Final</option>
+        <option value="Final Examination">Final</option>
+        <option value="Quiz">Quiz</option>
+        <option value="Long Examination">Long Exam</option>
+        <option value="Make-up Examination">Make-up Exam</option>
+        <option value="Other">Other</option>
+      </select>
+    </div>
+  </div>
+
+  <div class="field-group">
+    <div>
+      <label for="room">Room / Venue</label>
+      <input id="room" type="text" placeholder="e.g. BCH101">
+    </div>
+  </div>
+
+  <div class="field-group">
+    <div>
+      <label for="exam-date">Exam Date</label>
+      <input id="exam-date" type="date">
+    </div>
+    <div>
+      <label for="exam-time">Exam Time</label>
+      <input id="exam-time" type="time">
+    </div>
+  </div>
+
+  <div class="field-group">
+    <div>
+      <label for="proctor">Proctor / Invigilator</label>
+      <input id="proctor" type="text" placeholder="e.g. Prof. Gaylord Delos Santos">
+    </div>
+    <div>
+      <label for="section">Section</label>
+      <input id="section" type="text" placeholder="e.g. 1BSN-A">
+    </div>
+  </div>
+
+  <div class="field-group">
+    <div>
+      <label for="org">Institution / Department <span style="font-weight:400;text-transform:none">(optional)</span></label>
+      <input id="org" type="text" placeholder="e.g. CHAS">
+    </div>
+  </div>
+
+  <div class="field-group full">
+    <div>
+      <label for="students">Student List</label>
+      <textarea id="students" placeholder="One student per line. Format: Name or Number. Name&#10;&#10;e.g.&#10;Gayman Dela Cruz&#10;Maria Santos&#10;or&#10;2021-00001. Juan Dela Cruz"></textarea>
+      <p class="hint">One student per line. Optionally prefix with a number: <code>1. Name</code> or <code>2021-00001. Name</code></p>
+    </div>
+  </div>
+
+  <div class="btn-row">
+    <button id="btn-generate">Generate Sheet</button>
+    <button id="btn-clear">Clear</button>
+  </div>
+</section>
+
+<!-- ════════ PREVIEW ════════ -->
+<section id="preview-section">
+  <div class="preview-actions">
+    <button id="btn-print">Print / Save as PDF</button>
+    <button id="btn-back">← Back to Form</button>
+  </div>
+  <div id="sheet"></div>
+</section>
+
+<script>
+const $ = id => document.getElementById(id);
+
+function parseStudents(raw) {
+  return raw.split('\n')
+    .map(s => s.trim())
+    .filter(Boolean)
+    .map((line, i) => {
+      // match optional leading number/id: "1.", "2021-00001.", "001."
+      const m = line.match(/^([\w\-]+)\.\s+(.+)$/);
+      if (m) return { num: m[1], name: m[2].trim() };
+      return { num: String(i + 1), name: line };
+    });
+}
+
+function formatDate(dateStr) {
+  if (!dateStr) return '_______________';
+  const d = new Date(dateStr + 'T00:00:00');
+  return d.toLocaleDateString('en-PH', { year: 'numeric', month: 'long', day: 'numeric' });
+}
+
+function formatTime(timeStr) {
+  if (!timeStr) return '_______________';
+  const [h, m] = timeStr.split(':').map(Number);
+  const ampm = h >= 12 ? 'PM' : 'AM';
+  const hour = h % 12 || 12;
+  return `${hour}:${String(m).padStart(2,'0')} ${ampm}`;
+}
+
+function buildSheet({ subject, examType, room, date, time, proctor, section, org, students }) {
+  const rows = students.map((s, idx) => `
+    <tr>
+      <td style="text-align:center;width:40px">${s.num}</td>
+      <td>${s.name}</td>
+      <td class="sig-cell"></td>
+    </tr>`).join('');
+
+  const studentTable = students.length
+    ? `<table>
+        <thead>
+          <tr>
+            <th style="width:40px;text-align:center">#</th>
+            <th>Student Name</th>
+            <th class="sig-cell">Signature</th>
+          </tr>
+        </thead>
+        <tbody>${rows}</tbody>
+       </table>`
+    : `<div class="watermark-empty">No students added.</div>`;
+
+  const orgLine = org ? `<div class="org">${org}</div>` : '';
+
+  return `
+    <div class="sheet-header">
+      ${orgLine}
+      <h2>${examType || 'Exam'} Attendance Sheet</h2>
+      <div class="subtitle">Please sign on the space provided beside your name.</div>
+	  <div class="subtitle">Generated by Paulomon's examSystem</div>
+    </div>
+
+    <div class="info-grid">
+      <div class="info-row"><span class="info-label">Subject:</span><span class="info-value">${subject || '&nbsp;'}</span></div>
+      <div class="info-row"><span class="info-label">Exam Type:</span><span class="info-value">${examType || '&nbsp;'}</span></div>
+      <div class="info-row"><span class="info-label">Section:</span><span class="info-value">${section || '&nbsp;'}</span></div>
+      <div class="info-row"><span class="info-label">Room:</span><span class="info-value">${room || '&nbsp;'}</span></div>
+      <div class="info-row"><span class="info-label">Date:</span><span class="info-value">${formatDate(date)}</span></div>
+      <div class="info-row"><span class="info-label">Time:</span><span class="info-value">${formatTime(time)}</span></div>
+      <div class="info-row" style="grid-column:1/-1"><span class="info-label">Proctor:</span><span class="info-value">${proctor || '&nbsp;'}</span></div>
+    </div>
+
+    <div class="section-title">Student Attendance &amp; Signatures</div>
+    ${studentTable}
+
+    <div class="sheet-footer">
+      <div>
+        <p style="font-size:9pt;color:#555;margin-bottom:.5rem">Total Enrolled: <strong>${students.length}</strong></p>
+        <p style="font-size:9pt;color:#555">Total Present: <strong>_______</strong></p>
+      </div>
+      <div>
+        <div style="height:2.5rem"></div>
+        <div class="sig-block">
+          <div class="sig-name">${proctor || '________________________________'}</div>
+          <div class="sig-role">Proctor / Invigilator</div>
+        </div>
+      </div>
+    </div>
+  `;
+}
+
+$('btn-generate').addEventListener('click', () => {
+  const subject  = $('subject').value.trim();
+  const examType = $('exam-type').value.trim();
+  const room     = $('room').value.trim();
+  const date     = $('exam-date').value;
+  const time     = $('exam-time').value;
+  const proctor  = $('proctor').value.trim();
+  const section  = $('section').value.trim();
+  const org      = $('org').value.trim();
+  const students = parseStudents($('students').value);
+
+  $('sheet').innerHTML = buildSheet({ subject, examType, room, date, time, proctor, section, org, students });
+  $('form-section').style.display = 'none';
+  $('preview-section').classList.add('visible');
+});
+
+$('btn-print').addEventListener('click', () => window.print());
+
+$('btn-back').addEventListener('click', () => {
+  $('preview-section').classList.remove('visible');
+  $('form-section').style.display = '';
+});
+
+$('btn-clear').addEventListener('click', () => {
+  ['subject','room','exam-date','exam-time','proctor','section','org','students']
+    .forEach(id => $(id).value = '');
+  $('exam-type').selectedIndex = 0;
+});
+</script>
+</body>
+</html>
