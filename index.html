@@ -20,13 +20,14 @@
   }
   #form-section h1 { font-size: 1.4rem; margin-bottom: 1.5rem; color: #1a1a2e; }
   .field-group { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1rem; }
-  .field-group.full { grid-template-columns: 1fr; }
+  .field-group.full  { grid-template-columns: 1fr; }
+  .field-group.three { grid-template-columns: 1fr 1fr 1fr; }
   label { display: block; font-size: .8rem; font-weight: 700; color: #555; margin-bottom: .3rem; text-transform: uppercase; letter-spacing: .04em; }
   input, textarea, select {
     width: 100%; padding: .55rem .75rem; border: 1.5px solid #ccc;
     border-radius: 6px; font-size: .95rem; transition: border-color .2s;
   }
-  input:focus, textarea:focus { outline: none; border-color: #4a6cf7; }
+  input:focus, textarea:focus, select:focus { outline: none; border-color: #4a6cf7; }
   textarea { resize: vertical; min-height: 120px; font-family: monospace; font-size: .85rem; }
   .hint { font-size: .75rem; color: #888; margin-top: .25rem; }
   .btn-row { display: flex; gap: .75rem; margin-top: 1.5rem; }
@@ -37,6 +38,47 @@
   button:hover { opacity: .85; }
   #btn-generate { background: #4a6cf7; color: #fff; }
   #btn-clear    { background: #e2e8f0; color: #444; }
+
+  /* Multi-exam checkboxes */
+  .multi-exam-checks {
+    display: block;
+    margin-top: .4rem;
+    padding: .4rem .75rem;
+    border: 1.5px solid #ccc;
+    border-radius: 6px;
+    background: #fafafa;
+  }
+  .multi-exam-item {
+    padding: .35rem 0;
+    border-bottom: 1px solid #eee;
+  }
+  .multi-exam-item:last-child { border-bottom: none; }
+  .multi-exam-datetime {
+    display: none;
+    margin: .35rem 0 .15rem 1.6rem;
+    grid-template-columns: 1.3fr 1fr 1fr;
+    gap: .4rem;
+  }
+  .multi-exam-datetime.active { display: grid; }
+  .multi-exam-datetime input { font-size: .8rem; padding: .35rem .5rem; }
+  .check-label {
+    display: flex;
+    align-items: center;
+    gap: .4rem;
+    font-size: .85rem;
+    font-weight: 400;
+    color: #333;
+    text-transform: none;
+    letter-spacing: 0;
+    cursor: pointer;
+    margin-bottom: 0;
+  }
+  .check-label input[type="checkbox"] {
+    width: auto;
+    padding: 0;
+    border: none;
+    cursor: pointer;
+  }
 
   /* ── Preview wrapper (screen only) ── */
   #preview-section {
@@ -92,7 +134,7 @@
   th { padding: .45rem .6rem; text-align: left; font-weight: 700; }
   td { padding: .38rem .6rem; border-bottom: 1px solid #ccc; vertical-align: middle; }
   tr:nth-child(even) td { background: #f8f8f8; }
-  .sig-cell { min-width: 120px; }
+  .sig-cell { min-width: 100px; }
 
   .sheet-footer {
     margin-top: 2rem;
@@ -148,7 +190,78 @@
         <option value="Long Examination">Long Exam</option>
         <option value="Make-up Examination">Make-up Exam</option>
         <option value="Other">Other</option>
+        <option value="Custom">Custom</option>
+        <option value="Multi-Exam">Multi-Exam</option>
       </select>
+      <input id="exam-type-custom" type="text" placeholder="Enter custom exam type" style="margin-top:.5rem;display:none">
+      <div id="multi-exam-section" style="margin-top:.5rem;display:none">
+        <div class="multi-exam-checks">
+          <div class="multi-exam-item">
+            <label class="check-label"><input type="checkbox" class="multi-exam-cb" value="Preliminary Examination"> Preliminary</label>
+            <div class="multi-exam-datetime">
+              <input type="date" class="multi-exam-date" placeholder="Date">
+              <input type="time" class="multi-exam-time-start">
+              <input type="time" class="multi-exam-time-end">
+            </div>
+          </div>
+          <div class="multi-exam-item">
+            <label class="check-label"><input type="checkbox" class="multi-exam-cb" value="Midterm Examination"> Midterm</label>
+            <div class="multi-exam-datetime">
+              <input type="date" class="multi-exam-date">
+              <input type="time" class="multi-exam-time-start">
+              <input type="time" class="multi-exam-time-end">
+            </div>
+          </div>
+          <div class="multi-exam-item">
+            <label class="check-label"><input type="checkbox" class="multi-exam-cb" value="Pre-Final Examination"> Pre-Final</label>
+            <div class="multi-exam-datetime">
+              <input type="date" class="multi-exam-date">
+              <input type="time" class="multi-exam-time-start">
+              <input type="time" class="multi-exam-time-end">
+            </div>
+          </div>
+          <div class="multi-exam-item">
+            <label class="check-label"><input type="checkbox" class="multi-exam-cb" value="Final Examination"> Final</label>
+            <div class="multi-exam-datetime">
+              <input type="date" class="multi-exam-date">
+              <input type="time" class="multi-exam-time-start">
+              <input type="time" class="multi-exam-time-end">
+            </div>
+          </div>
+          <div class="multi-exam-item">
+            <label class="check-label"><input type="checkbox" class="multi-exam-cb" value="Quiz"> Quiz</label>
+            <div class="multi-exam-datetime">
+              <input type="date" class="multi-exam-date">
+              <input type="time" class="multi-exam-time-start">
+              <input type="time" class="multi-exam-time-end">
+            </div>
+          </div>
+          <div class="multi-exam-item">
+            <label class="check-label"><input type="checkbox" class="multi-exam-cb" value="Long Examination"> Long Exam</label>
+            <div class="multi-exam-datetime">
+              <input type="date" class="multi-exam-date">
+              <input type="time" class="multi-exam-time-start">
+              <input type="time" class="multi-exam-time-end">
+            </div>
+          </div>
+          <div class="multi-exam-item">
+            <label class="check-label"><input type="checkbox" class="multi-exam-cb" value="Make-up Examination"> Make-up Exam</label>
+            <div class="multi-exam-datetime">
+              <input type="date" class="multi-exam-date">
+              <input type="time" class="multi-exam-time-start">
+              <input type="time" class="multi-exam-time-end">
+            </div>
+          </div>
+          <div class="multi-exam-item">
+            <label class="check-label"><input type="checkbox" class="multi-exam-cb" value="Other"> Other</label>
+            <div class="multi-exam-datetime">
+              <input type="date" class="multi-exam-date">
+              <input type="time" class="multi-exam-time-start">
+              <input type="time" class="multi-exam-time-end">
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
   </div>
 
@@ -159,14 +272,18 @@
     </div>
   </div>
 
-  <div class="field-group">
+  <div class="field-group three">
     <div>
       <label for="exam-date">Exam Date</label>
       <input id="exam-date" type="date">
     </div>
     <div>
-      <label for="exam-time">Exam Time</label>
-      <input id="exam-time" type="time">
+      <label for="exam-time-start">Start Time</label>
+      <input id="exam-time-start" type="time">
+    </div>
+    <div>
+      <label for="exam-time-end">End Time</label>
+      <input id="exam-time-end" type="time">
     </div>
   </div>
 
@@ -178,6 +295,13 @@
     <div>
       <label for="section">Section</label>
       <input id="section" type="text" placeholder="e.g. 1BSN-A">
+    </div>
+  </div>
+
+  <div class="field-group full">
+    <div>
+      <label for="additional-instructions">Additional Instructions</label>
+      <textarea id="additional-instructions" placeholder="e.g. No cheating. Use black pen only." style="min-height:60px"></textarea>
     </div>
   </div>
 
@@ -219,7 +343,6 @@ function parseStudents(raw) {
     .map(s => s.trim())
     .filter(Boolean)
     .map((line, i) => {
-      // match optional leading number/id: "1.", "2021-00001.", "001."
       const m = line.match(/^([\w\-]+)\.\s+(.+)$/);
       if (m) return { num: m[1], name: m[2].trim() };
       return { num: String(i + 1), name: line };
@@ -233,18 +356,68 @@ function formatDate(dateStr) {
 }
 
 function formatTime(timeStr) {
-  if (!timeStr) return '_______________';
+  if (!timeStr) return null;
   const [h, m] = timeStr.split(':').map(Number);
   const ampm = h >= 12 ? 'PM' : 'AM';
   const hour = h % 12 || 12;
   return `${hour}:${String(m).padStart(2,'0')} ${ampm}`;
 }
 
-function buildSheet({ subject, examType, room, date, time, proctor, section, org, students }) {
-  const rows = students.map((s, idx) => `
+function formatTimeRange(start, end) {
+  const s = formatTime(start);
+  const e = formatTime(end);
+  if (s && e) return `${s} – ${e}`;
+  if (s)     return `${s} – ___________`;
+  if (e)     return `___________ – ${e}`;
+  return '_______________';
+}
+
+$('exam-type').addEventListener('change', function() {
+  const val = this.value;
+  $('exam-type-custom').style.display   = val === 'Custom'     ? '' : 'none';
+  $('multi-exam-section').style.display = val === 'Multi-Exam' ? '' : 'none';
+});
+
+document.addEventListener('change', function(e) {
+  if (!e.target.classList.contains('multi-exam-cb')) return;
+  const dt = e.target.closest('.multi-exam-item').querySelector('.multi-exam-datetime');
+  dt.classList.toggle('active', e.target.checked);
+  if (!e.target.checked) {
+    dt.querySelector('.multi-exam-date').value = '';
+    dt.querySelector('.multi-exam-time-start').value = '';
+    dt.querySelector('.multi-exam-time-end').value = '';
+  }
+});
+
+function resolveExamType(examType, customType, multiItems) {
+  if (examType === 'Custom')     return customType || 'Custom Examination';
+  if (examType === 'Multi-Exam') return multiItems.length ? multiItems.map(x => x.type).join(', ') : 'Multi-Exam';
+  return examType;
+}
+
+function buildSheet({ subject, examType, examTypeCustom, multiExamItems, room, date, timeStart, timeEnd, proctor, section, org, additionalInstructions, students }) {
+  const isMulti      = examType === 'Multi-Exam' && multiExamItems.length > 0;
+  const displayType  = resolveExamType(examType, examTypeCustom, multiExamItems);
+  const sheetTitle   = isMulti ? 'Examination Attendance Sheet' : `${displayType || 'Exam'} Attendance Sheet`;
+
+  const multiColHeaders = isMulti
+    ? multiExamItems.map(item => {
+        const shortType = item.type.replace(' Examination', '').replace(' Exam', '');
+        const dateStr   = item.date ? formatDate(item.date) : '';
+        const timeStr   = (item.timeStart || item.timeEnd) ? formatTimeRange(item.timeStart, item.timeEnd) : '';
+        const sub       = [dateStr, timeStr].filter(Boolean).join('<br>');
+        return `<th class="sig-cell">${shortType}${sub ? `<br><span style="font-size:7.5pt;font-weight:400">${sub}</span>` : ''}</th>`;
+      }).join('')
+    : '';
+  const multiColCells = isMulti
+    ? multiExamItems.map(() => `<td class="sig-cell"></td>`).join('')
+    : '';
+
+  const rows = students.map(s => `
     <tr>
       <td style="text-align:center;width:40px">${s.num}</td>
       <td>${s.name}</td>
+      ${multiColCells}
       <td class="sig-cell"></td>
     </tr>`).join('');
 
@@ -254,6 +427,7 @@ function buildSheet({ subject, examType, room, date, time, proctor, section, org
           <tr>
             <th style="width:40px;text-align:center">#</th>
             <th>Student Name</th>
+            ${multiColHeaders}
             <th class="sig-cell">Signature</th>
           </tr>
         </thead>
@@ -263,22 +437,33 @@ function buildSheet({ subject, examType, room, date, time, proctor, section, org
 
   const orgLine = org ? `<div class="org">${org}</div>` : '';
 
+  const instrRow = additionalInstructions
+    ? `<div class="info-row" style="grid-column:1/-1">
+         <span class="info-label">Instructions:</span>
+         <span class="info-value" style="white-space:pre-wrap">${additionalInstructions}</span>
+       </div>`
+    : '';
+
   return `
     <div class="sheet-header">
       ${orgLine}
-      <h2>${examType || 'Exam'} Attendance Sheet</h2>
+      <h2>${sheetTitle}</h2>
       <div class="subtitle">Please sign on the space provided beside your name.</div>
-	  <div class="subtitle">Generated by Paulomon's examSystem</div>
+      <div class="subtitle">Generated by Paulomon's examSystem</div>
     </div>
 
     <div class="info-grid">
       <div class="info-row"><span class="info-label">Subject:</span><span class="info-value">${subject || '&nbsp;'}</span></div>
-      <div class="info-row"><span class="info-label">Exam Type:</span><span class="info-value">${examType || '&nbsp;'}</span></div>
+      <div class="info-row"><span class="info-label">Exam Type:</span><span class="info-value">${displayType || '&nbsp;'}</span></div>
       <div class="info-row"><span class="info-label">Section:</span><span class="info-value">${section || '&nbsp;'}</span></div>
       <div class="info-row"><span class="info-label">Room:</span><span class="info-value">${room || '&nbsp;'}</span></div>
-      <div class="info-row"><span class="info-label">Date:</span><span class="info-value">${formatDate(date)}</span></div>
-      <div class="info-row"><span class="info-label">Time:</span><span class="info-value">${formatTime(time)}</span></div>
+      ${isMulti
+        ? `<div class="info-row" style="grid-column:1/-1"><span class="info-label">Dates/Times:</span><span class="info-value">See individual exam columns</span></div>`
+        : `<div class="info-row"><span class="info-label">Date:</span><span class="info-value">${formatDate(date)}</span></div>
+      <div class="info-row"><span class="info-label">Time:</span><span class="info-value">${formatTimeRange(timeStart, timeEnd)}</span></div>`
+      }
       <div class="info-row" style="grid-column:1/-1"><span class="info-label">Proctor:</span><span class="info-value">${proctor || '&nbsp;'}</span></div>
+      ${instrRow}
     </div>
 
     <div class="section-title">Student Attendance &amp; Signatures</div>
@@ -301,17 +486,35 @@ function buildSheet({ subject, examType, room, date, time, proctor, section, org
 }
 
 $('btn-generate').addEventListener('click', () => {
-  const subject  = $('subject').value.trim();
-  const examType = $('exam-type').value.trim();
-  const room     = $('room').value.trim();
-  const date     = $('exam-date').value;
-  const time     = $('exam-time').value;
-  const proctor  = $('proctor').value.trim();
-  const section  = $('section').value.trim();
-  const org      = $('org').value.trim();
-  const students = parseStudents($('students').value);
+  const subject                = $('subject').value.trim();
+  const examType               = $('exam-type').value;
+  const examTypeCustom         = $('exam-type-custom').value.trim();
+  const multiExamItems         = examType === 'Multi-Exam'
+    ? [...document.querySelectorAll('.multi-exam-cb:checked')].map(cb => {
+        const item = cb.closest('.multi-exam-item');
+        return {
+          type:      cb.value,
+          date:      item.querySelector('.multi-exam-date').value,
+          timeStart: item.querySelector('.multi-exam-time-start').value,
+          timeEnd:   item.querySelector('.multi-exam-time-end').value
+        };
+      })
+    : [];
+  const room                   = $('room').value.trim();
+  const date                   = $('exam-date').value;
+  const timeStart              = $('exam-time-start').value;
+  const timeEnd                = $('exam-time-end').value;
+  const proctor                = $('proctor').value.trim();
+  const section                = $('section').value.trim();
+  const org                    = $('org').value.trim();
+  const additionalInstructions = $('additional-instructions').value.trim();
+  const students               = parseStudents($('students').value);
 
-  $('sheet').innerHTML = buildSheet({ subject, examType, room, date, time, proctor, section, org, students });
+  $('sheet').innerHTML = buildSheet({
+    subject, examType, examTypeCustom, multiExamItems,
+    room, date, timeStart, timeEnd,
+    proctor, section, org, additionalInstructions, students
+  });
   $('form-section').style.display = 'none';
   $('preview-section').classList.add('visible');
 });
@@ -324,9 +527,17 @@ $('btn-back').addEventListener('click', () => {
 });
 
 $('btn-clear').addEventListener('click', () => {
-  ['subject','room','exam-date','exam-time','proctor','section','org','students']
+  ['subject','room','exam-date','exam-time-start','exam-time-end',
+   'proctor','section','org','students','additional-instructions','exam-type-custom']
     .forEach(id => $(id).value = '');
   $('exam-type').selectedIndex = 0;
+  $('exam-type-custom').style.display   = 'none';
+  $('multi-exam-section').style.display = 'none';
+  document.querySelectorAll('.multi-exam-cb').forEach(cb => cb.checked = false);
+  document.querySelectorAll('.multi-exam-datetime').forEach(dt => {
+    dt.classList.remove('active');
+    dt.querySelectorAll('input').forEach(i => i.value = '');
+  });
 });
 </script>
 </body>
